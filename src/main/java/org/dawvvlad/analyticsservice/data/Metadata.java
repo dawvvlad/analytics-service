@@ -1,4 +1,4 @@
-package com.btlab.wings.module.recruitment.rest.cloudadmin.analytics.data;
+package org.dawvvlad.analyticsservice.data;
 
 import java.time.Instant;
 import java.util.Map;

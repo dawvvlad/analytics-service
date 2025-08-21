@@ -1,7 +1,8 @@
-package com.btlab.wings.module.recruitment.rest.cloudadmin.analytics;
+package org.dawvvlad.analyticsservice.service;
 
-import com.btlab.wings.module.recruitment.rest.cloudadmin.analytics.data.AnalyticsRequest;
-import com.btlab.wings.module.recruitment.rest.cloudadmin.analytics.data.AnalyticsResponse;
+
+import org.dawvvlad.analyticsservice.data.AnalyticsRequest;
+import org.dawvvlad.analyticsservice.data.AnalyticsResponse;
 
 public interface AnalyticsService {
     AnalyticsResponse getAnalyticsData(AnalyticsRequest request) throws Exception;

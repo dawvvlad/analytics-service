@@ -1,7 +1,4 @@
-package com.btlab.wings.module.recruitment.rest.cloudadmin.analytics.data;
-
-import com.btlab.wings.api.model.gui.Filter;
-import com.btlab.wings.api.model.gui.Order;
+package org.dawvvlad.analyticsservice.data;
 
 import java.util.List;
 

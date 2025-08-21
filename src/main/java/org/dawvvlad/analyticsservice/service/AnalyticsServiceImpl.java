@@ -1,11 +1,10 @@
-package com.btlab.wings.module.recruitment.rest.cloudadmin.analytics;
+package org.dawvvlad.analyticsservice.service;
 
-import com.btlab.wings.module.recruitment.rest.cloudadmin.analytics.data.*;
-import com.btlab.wings.module.recruitment.rest.cloudadmin.exception_handling.AnalyticsException;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.dawvvlad.analyticsservice.data.AnalyticsRequest;
+import org.dawvvlad.analyticsservice.data.AnalyticsResponse;
+import org.dawvvlad.analyticsservice.data.Metadata;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.*;
@@ -13,13 +12,12 @@ import java.util.*;
 /**
  * Сервис аналитики
  */
-@Service
 @Log4j2
 public class AnalyticsServiceImpl implements AnalyticsService {
     private final JdbcTemplate jdbcTemplate;
     private final QueryBuilder queryBuilder;
 
-    public AnalyticsServiceImpl(@Qualifier("wingsJdbcTemplate") JdbcTemplate jdbcTemplate,
+    public AnalyticsServiceImpl(JdbcTemplate jdbcTemplate,
                                 QueryBuilder queryBuilder) {
         this.jdbcTemplate = jdbcTemplate;
         this.queryBuilder = queryBuilder;
@@ -32,7 +30,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
      * @return данные аналитики с метаданными
      * @see AnalyticsResponse
      */
-    public AnalyticsResponse getAnalyticsData(AnalyticsRequest request) {
+    public AnalyticsResponse getAnalyticsData(AnalyticsRequest request) throws Exception {
         try {
             // Валидация
             validateRequest(request);
@@ -59,7 +57,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
         } catch (Exception e) {
             log.error("Failed to execute analytics query: {}", e.getMessage());
-            throw new AnalyticsException("Failed to execute analytics query: " + e.getMessage());
+            throw new Exception("Failed to execute analytics query: " + e.getMessage());
         }
     }
 
@@ -67,12 +65,12 @@ public class AnalyticsServiceImpl implements AnalyticsService {
      * Валидация на корректное наименование таблицы и наличия measures в запросе
      * @param request запрос
      */
-    private void validateRequest(AnalyticsRequest request) {
+    private void validateRequest(AnalyticsRequest request) throws Exception {
         if (request.tableName() == null || request.tableName().isBlank()) {
-            throw new AnalyticsException("Table name is required");
+            throw new Exception("Table name is required");
         }
         if (request.measures() == null || request.measures().isEmpty()) {
-            throw new AnalyticsException("At least one measure is required");
+            throw new Exception("At least one measure is required");
         }
     }
 

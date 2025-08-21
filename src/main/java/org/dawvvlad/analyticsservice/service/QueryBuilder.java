@@ -1,15 +1,8 @@
-package com.btlab.wings.module.recruitment.rest.cloudadmin.analytics;
+package org.dawvvlad.analyticsservice.service;
 
-import com.btlab.wings.api.model.data.EntityField;
-import com.btlab.wings.api.model.gui.*;
-import com.btlab.wings.model.xml.OrderType;
-import com.btlab.wings.module.recruitment.rest.cloudadmin.analytics.data.AnalyticsRequest;
-import com.btlab.wings.module.recruitment.rest.cloudadmin.analytics.data.Dimension;
-import com.btlab.wings.module.recruitment.rest.cloudadmin.analytics.data.Measure;
-import com.btlab.wings.module.recruitment.rest.cloudadmin.exception_handling.AnalyticsException;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Component;
+import org.apache.commons.lang3.StringUtils;
+import org.dawvvlad.analyticsservice.data.*;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -22,12 +15,9 @@ import java.util.List;
  * @see AnalyticsRequest
  * @see Dimension
  * @see Measure
- * @see com.btlab.wings.module.recruitment.rest.cloudadmin.analytics.data.Metadata
- * @see com.btlab.wings.module.recruitment.rest.cloudadmin.analytics.data.TimeRange
  *
  * @author Golikov Vladislav
  */
-@Component
 @Log4j2
 public class QueryBuilder {
 
@@ -225,31 +215,7 @@ public class QueryBuilder {
      * @return
      */
     private String buildFilterCondition(Filter filter) {
-        if (filter instanceof EqualsFilter equalsFilter) {
-            return equalsFilter.getField() + " = ?";
-        } else if (filter instanceof ContainsFilter containsFilter) {
-            return containsFilter.getField() + " ILIKE ?";
-        } else if (filter instanceof StartWithFilter startWithFilter) {
-            return startWithFilter.getField() + " ILIKE ?";
-        } else if (filter instanceof InFilter inFilter) {
-            return inFilter.getField() + " IN (" +
-                    String.join(",", Collections.nCopies(inFilter.getValues().size(), "?")) +
-                    ")";
-        } else if (filter instanceof BetweenFilter betweenFilter) {
-            return betweenFilter.getField() + " BETWEEN ? AND ?";
-        } else if (filter instanceof GreaterFilter greaterFilter) {
-            return greaterFilter.getField() + " > ?";
-        } else if (filter instanceof GreaterEqualsFilter greaterEqualsFilter) {
-            return greaterEqualsFilter.getField() + " >= ?";
-        } else if (filter instanceof MinorFilter minorFilter) {
-            return minorFilter.getField() + " < ?";
-        } else if (filter instanceof MinorEqualsFilter minorEqualsFilter) {
-            return minorEqualsFilter.getField() + " <= ?";
-        } else if (filter instanceof IsNullFilter isNullFilter) {
-            return isNullFilter.getField() + " IS NULL";
-        }
-
-        throw new AnalyticsException("Unsupported filter type: " + filter.getClass().getSimpleName());
+        return "";
     }
 
     /**
@@ -259,60 +225,14 @@ public class QueryBuilder {
      * @param filter
      */
     private void addFilterParameters(List<Object> params, Filter filter) {
-        if (filter instanceof EqualsFilter equalsFilter) {
-            params.add(convertValue(equalsFilter.getValue()));
-        } else if (filter instanceof ContainsFilter containsFilter) {
-            params.add("%" + containsFilter.getValue().asString() + "%");
-        } else if (filter instanceof StartWithFilter startWithFilter) {
-            params.add(startWithFilter.getValue().asString() + "%");
-        } else if (filter instanceof InFilter inFilter) {
-            for (EntityField value : inFilter.getValues()) {
-                params.add(convertValue(value));
-            }
-        } else if (filter instanceof BetweenFilter betweenFilter) {
-            params.add(convertValue(betweenFilter.getStartValue()));
-            params.add(convertValue(betweenFilter.getEndValue()));
-        } else if (filter instanceof GreaterFilter greaterFilter) {
-            params.add(convertValue(greaterFilter.getValue()));
-        } else if (filter instanceof GreaterEqualsFilter greaterEqualsFilter) {
-            params.add(convertValue(greaterEqualsFilter.getValue()));
-        } else if (filter instanceof MinorFilter minorFilter) {
-            params.add(convertValue(minorFilter.getValue()));
-        } else if (filter instanceof MinorEqualsFilter minorEqualsFilter) {
-            params.add(convertValue(minorEqualsFilter.getValue()));
-        }
-        // IsNullFilter не требует параметров
+
     }
 
     /**
      * Конвертирует EntityField в соответствующий Java тип для SQL
      */
-    private Object convertValue(EntityField entityField) {
-        if (entityField == null) {
-            return null;
-        }
-
-        String type = entityField.getType();
-        String stringValue = entityField.asString();
-
-        if (stringValue == null || "null".equalsIgnoreCase(stringValue)) {
-            return null;
-        }
-
-        try {
-            return switch (type != null ? type.toLowerCase() : "string") {
-                case "long", "integer", "int" -> Long.parseLong(stringValue);
-                case "double", "float" -> Double.parseDouble(stringValue);
-                case "boolean", "bool" -> Boolean.parseBoolean(stringValue);
-                case "timestamp", "date", "datetime" -> parseTimestamp(stringValue);
-                case "uuid" -> java.util.UUID.fromString(stringValue);
-                default -> stringValue; // String и все остальные
-            };
-        } catch (Exception e) {
-            // В случае ошибки парсинга возвращаем как строку
-            log.error("Error converting value '{}' of type '{}': {}", stringValue, type, e.getMessage());
-            return stringValue;
-        }
+    private Object convertValue(Object entityField) {
+        return entityField;
     }
 
     /**
@@ -374,10 +294,6 @@ public class QueryBuilder {
                 Order order = request.orders().get(i);
 
                 // Используем поле из SELECT (а не оригинальное имя)
-                sql.append(order.getField())
-                        .append(" ")
-                        .append(order.getDirection() == OrderType.ASC ? "ASC" : "DESC");
-
                 if (i < request.orders().size() - 1) {
                     sql.append(", ");
                 }
