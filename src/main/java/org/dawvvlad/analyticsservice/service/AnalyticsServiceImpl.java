@@ -1,6 +1,5 @@
 package org.dawvvlad.analyticsservice.service;
 
-import lombok.extern.log4j.Log4j2;
 import org.dawvvlad.analyticsservice.data.AnalyticsRequest;
 import org.dawvvlad.analyticsservice.data.AnalyticsResponse;
 import org.dawvvlad.analyticsservice.data.Metadata;
@@ -12,7 +11,6 @@ import java.util.*;
 /**
  * Сервис аналитики
  */
-@Log4j2
 public class AnalyticsServiceImpl implements AnalyticsService {
     private final JdbcTemplate jdbcTemplate;
     private final QueryBuilder queryBuilder;
@@ -56,7 +54,6 @@ public class AnalyticsServiceImpl implements AnalyticsService {
             );
 
         } catch (Exception e) {
-            log.error("Failed to execute analytics query: {}", e.getMessage());
             throw new Exception("Failed to execute analytics query: " + e.getMessage());
         }
     }
