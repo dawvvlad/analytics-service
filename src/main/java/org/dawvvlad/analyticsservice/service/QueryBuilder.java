@@ -215,7 +215,23 @@ public class QueryBuilder {
      * @return
      */
     private String buildFilterCondition(Filter filter) {
-        return "";
+        StringBuilder condition = new StringBuilder(filter.field());
+        switch (filter.filterType()) {
+            case FilterType.EqualsFilter -> condition.append(" = ?");
+            case FilterType.NotEqualsFilter -> condition.append(" != ?");
+            case FilterType.GreaterThanFilter -> condition.append(" > ?");
+            case FilterType.GreaterThanOrEqualsFilter -> condition.append(" >= ?");
+            case FilterType.LessThanFilter -> condition.append(" < ?");
+            case FilterType.LessThanOrEqualsFilter -> condition.append(" <= ?");
+            case FilterType.ContainsFilter -> condition.append(" LIKE %?%");
+            case FilterType.BetweenFilter -> condition.append(" BETWEEN ? AND ?");
+            case FilterType.InFilter -> condition.append(" IN (?)");
+            case FilterType.NotInFilter -> condition.append(" NOT IN (?)");
+            case FilterType.EndsWithFilter -> condition.append(" LIKE ?%");
+            case FilterType.StartsWithFilter -> condition.append(" LIKE %?");
+            default -> condition.append(" IS NULL");
+        }
+        return condition.toString();
     }
 
     /**
@@ -255,7 +271,6 @@ public class QueryBuilder {
                 }
             }
         } catch (Exception e) {
-            log.error("Invalid timestamp format: {}", e.getMessage());
             throw new IllegalArgumentException("Invalid timestamp format: " + value);
         }
     }
